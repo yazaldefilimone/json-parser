@@ -83,7 +83,6 @@ impl Lexer {
           let literal: String = self.read_number();
           return self.create_token(TokenType::NUMBER, literal);
         }
-
         // if self.is_letter(self.character) {
         //   let literal: String = self.read_identifier();
         //   return self.create_token(TokenType::STRING, literal);
@@ -143,7 +142,6 @@ impl Lexer {
     return litteral.to_owned();
   }
 
-  // validate if the character is a letter
   fn is_whitespace(&self, character: char) -> bool {
     let is_space: bool =
       character.is_whitespace() ||
