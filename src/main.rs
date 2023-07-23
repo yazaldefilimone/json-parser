@@ -13,6 +13,7 @@ fn main() {
         "city": "New York",
         "state": "NY",
         "zip": "10001"
+        "en": null
       },
       "phone_numbers": [
         "+1 (555) 555-1234",
@@ -29,7 +30,7 @@ fn main() {
     if token.token_type == lexer::TokenType::EOF {
       break;
     }
-    println!("token: {:?}", token.literal);
+    println!("token: {:?}", token);
     token = lexer.next_token();
   }
 }
