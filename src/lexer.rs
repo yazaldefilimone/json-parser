@@ -3,19 +3,18 @@
 pub enum TokenType {
   ILLEGAL,
   EOF,
-  // Identifiers + literals
-  IDENT,
-  INT,
-  // Operators
-  ASSIGN,
-  PLUS,
-  // Delimiters
+  TRUE,
+  FALSE,
+  NULL,
+  STRING,
+  NUMBER,
   COMMA,
   SEMICOLON,
-  DOT,
-  LBRACE,
-  RBRACE,
-  // Keywords
+  COLON,
+  LEFTBRACE,
+  RIGHTBRACE,
+  LEFTBRACKET,
+  RIGHTBRACKET,
 }
 #[derive(Debug)]
 pub struct Token {
@@ -45,24 +44,50 @@ impl Lexer {
   pub fn next_token(&mut self) -> Token {
     self.skip_whitespace();
     let token: Token = match self.character {
-      '=' => self.create_token(TokenType::ASSIGN, self.character.to_string()),
-      ':' => self.create_token(TokenType::DOT, self.character.to_string()),
+      ':' => self.create_token(TokenType::COLON, self.character.to_string()),
       ';' => self.create_token(TokenType::SEMICOLON, self.character.to_string()),
       ',' => self.create_token(TokenType::COMMA, self.character.to_string()),
-      '+' => self.create_token(TokenType::PLUS, self.character.to_string()),
-      '{' => self.create_token(TokenType::LBRACE, self.character.to_string()),
-      ')' => self.create_token(TokenType::RBRACE, self.character.to_string()),
+      '{' => self.create_token(TokenType::LEFTBRACE, self.character.to_string()),
+      '}' => self.create_token(TokenType::RIGHTBRACE, self.character.to_string()),
+      '[' => self.create_token(TokenType::LEFTBRACKET, self.character.to_string()),
+      ']' => self.create_token(TokenType::RIGHTBRACKET, self.character.to_string()),
+      '"' => {
+        self.read_charecter();
+        let literal: String = self.read_string();
+        return self.create_token(TokenType::STRING, literal);
+      }
+      't' => {
+        let literal: String = self.read_identifier();
+        if literal == "true" {
+          return self.create_token(TokenType::TRUE, literal);
+        }
+        return self.create_token(TokenType::ILLEGAL, literal);
+      }
+      'f' => {
+        let literal: String = self.read_identifier();
+        if literal == "false" {
+          return self.create_token(TokenType::FALSE, literal);
+        }
+        return self.create_token(TokenType::ILLEGAL, literal);
+      }
+      'n' => {
+        let literal: String = self.read_identifier();
+        if literal == "null" {
+          return self.create_token(TokenType::NULL, literal);
+        }
+        return self.create_token(TokenType::ILLEGAL, literal);
+      }
       '\0' => self.create_token(TokenType::EOF, self.character.to_string()),
       _ => {
         if self.is_digit(self.character) {
           let literal: String = self.read_number();
-          return self.create_token(TokenType::INT, literal);
+          return self.create_token(TokenType::NUMBER, literal);
         }
 
-        if self.is_letter(self.character) {
-          let literal: String = self.read_identifier();
-          return self.create_token(TokenType::IDENT, literal);
-        }
+        // if self.is_letter(self.character) {
+        //   let literal: String = self.read_identifier();
+        //   return self.create_token(TokenType::STRING, literal);
+        // }
         return self.create_token(TokenType::ILLEGAL, self.character.to_string());
       }
     };
@@ -109,6 +134,14 @@ impl Lexer {
     let litteral: &str = self.input.get(start_postion..self.position).unwrap();
     return litteral.to_owned();
   }
+  fn read_string(&mut self) -> String {
+    let start_postion: usize = self.position;
+    while self.character != '"' {
+      self.read_charecter();
+    }
+    let litteral: &str = self.input.get(start_postion..self.position).unwrap();
+    return litteral.to_owned();
+  }
 
   // validate if the character is a letter
   fn is_whitespace(&self, character: char) -> bool {
@@ -117,7 +150,6 @@ impl Lexer {
       character == '\t' ||
       character == '\n' ||
       character == '\r' ||
-      character == '\"' ||
       character == '\0';
     return is_space;
   }
