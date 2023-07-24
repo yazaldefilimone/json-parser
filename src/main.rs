@@ -1,8 +1,10 @@
 mod lexer;
+mod parser;
 use lexer::Lexer;
+use parser::parser;
 
 fn main() {
-  let json =
+  let json: &str =
     r#"
     {
       "name": "John Doe",
@@ -23,14 +25,17 @@ fn main() {
     "#;
 
   let code: String = String::from(json);
-  let mut lexer = Lexer::new(code);
-  let mut token = lexer.next_token();
-
+  let mut lexer: Lexer = Lexer::new(code);
+  let mut token: lexer::Token = lexer.next_token();
+  let mut tokens: Vec<lexer::Token> = Vec::new();
   loop {
+    tokens.push(token);
+    token = lexer.next_token();
     if token.token_type == lexer::TokenType::EOF {
       break;
     }
-    println!("token: {:?}", token);
-    token = lexer.next_token();
   }
+  let mut paser = parser(tokens);
+  let json: parser::Ast = paser();
+  dbg!(json);
 }

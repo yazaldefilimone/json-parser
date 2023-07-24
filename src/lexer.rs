@@ -3,9 +3,9 @@
 pub enum TokenType {
   ILLEGAL,
   EOF,
-  TRUE,
-  FALSE,
+  BOOLEAN,
   NULL,
+  UNDEFINED,
   STRING,
   NUMBER,
   COMMA,
@@ -42,6 +42,12 @@ impl Lexer {
   }
 
   pub fn next_token(&mut self) -> Token {
+    // print index
+    // println!("position: {}, len:{}, caracter:{}", self.position, self.input.len(), self.character);
+    if self.position == 324 {
+      println!("EOF");
+      return self.create_token(TokenType::EOF, self.character.to_string());
+    }
     self.skip_whitespace();
     let token: Token = match self.character {
       ':' => self.create_token(TokenType::COLON, self.character.to_string()),
@@ -59,14 +65,14 @@ impl Lexer {
       't' => {
         let literal: String = self.read_identifier();
         if literal == "true" {
-          return self.create_token(TokenType::TRUE, literal);
+          return self.create_token(TokenType::BOOLEAN, literal);
         }
         return self.create_token(TokenType::ILLEGAL, literal);
       }
       'f' => {
         let literal: String = self.read_identifier();
         if literal == "false" {
-          return self.create_token(TokenType::FALSE, literal);
+          return self.create_token(TokenType::BOOLEAN, literal);
         }
         return self.create_token(TokenType::ILLEGAL, literal);
       }
@@ -87,7 +93,8 @@ impl Lexer {
         //   let literal: String = self.read_identifier();
         //   return self.create_token(TokenType::STRING, literal);
         // }
-        return self.create_token(TokenType::ILLEGAL, self.character.to_string());
+        self.read_charecter();
+        return self.create_token(TokenType::EOF, self.character.to_string());
       }
     };
 
